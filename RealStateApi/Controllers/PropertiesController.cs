@@ -42,7 +42,7 @@ namespace RealStateApi.Controllers
             var propertyResult = _dbContext.Properties.FirstOrDefault(p => p.Id == id);
             if (propertyResult == null)
             {
-                return NoContent();
+                return NotFound();
             }
             else
             {
@@ -50,16 +50,43 @@ namespace RealStateApi.Controllers
                 var user = _dbContext.Users.FirstOrDefault(u => u.Email == userEmail);
                 _dbContext.Users.First(u => u.Email == userEmail);
                 if (User == null) return NotFound();
-                propertyResult.Name = property.Name;
-                propertyResult.Detail = property.Detail;
-                propertyResult.Price = property.Price;
-                propertyResult.Address = property.Address;
-                property.IsTrending = false;
-                property.UserId = user.Id;
-                
-                _dbContext.SaveChanges();
-                return Ok("Record updated successfully!");
+                if (propertyResult.UserId == user.Id)
+                {
+                    propertyResult.Name = property.Name;
+                    propertyResult.Detail = property.Detail;
+                    propertyResult.Price = property.Price;
+                    propertyResult.Address = property.Address;
+                    property.IsTrending = false;
+                    property.UserId = user.Id;
 
+                    _dbContext.SaveChanges();
+                    return Ok("Record updated successfully!");
+                }
+                return BadRequest();
+            }
+        }
+        [HttpDelete("{id}")]
+        [Authorize]
+        public IActionResult Delete(int id)
+        {
+            var propertyResult = _dbContext.Properties.FirstOrDefault(p => p.Id == id);
+            if (propertyResult == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var userEmail = User.Claims.FirstOrDefault(C => C.Type == ClaimTypes.Email)?.Value;
+                var user = _dbContext.Users.FirstOrDefault(u => u.Email == userEmail);
+                _dbContext.Users.First(u => u.Email == userEmail);
+                if (User == null) return NotFound();
+                if (propertyResult.UserId == user.Id)
+                {
+                    _dbContext.Properties.Remove(propertyResult);
+                    _dbContext.SaveChanges();
+                    return Ok("Record Deleted successfully!");
+                }
+                return BadRequest();
             }
         }
     }
