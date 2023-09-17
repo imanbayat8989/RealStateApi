@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using RealStateApi.HUB;
+using RealStateApi.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSingleton<ChatServices>();
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddMvc().AddXmlSerializerFormatters();
+builder.Services.AddSignalR();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -40,6 +46,11 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
+app.MapFallbackToController("index", "FallBack");
 
 app.Run();
