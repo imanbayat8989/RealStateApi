@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using RealStateApi.HUB;
+using RealStateApi.Interfaces;
 using RealStateApi.Services;
 using System.Text;
 
@@ -15,6 +16,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<ChatServices>();
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IMessageProducer, MessageProducer>();
+
 builder.Services.AddMvc().AddXmlSerializerFormatters();
 builder.Services.AddSignalR();
 
